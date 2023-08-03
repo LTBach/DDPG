@@ -24,11 +24,11 @@ class Agent():
 
         self.behavior_actor = ActorNetwork(alpha, state_dims, fc1_dims, 
                                            fc2_dims, action_dims, 
-                                           name='actor')
+                                           name='behavior_actor')
         
         self.behavior_critic = CriticNetwork(beta, state_dims, fc1_dims, 
                                              fc2_dims, action_dims, 
-                                             name='critic')
+                                             name='behavior_critic')
         
         self.target_actor = ActorNetwork(alpha, state_dims, fc1_dims, 
                                          fc2_dims, action_dims, 
@@ -91,6 +91,7 @@ class Agent():
         actor_loss = -self.behavior_critic.forward(states, 
                                         self.behavior_actor.forward(states))
         actor_loss = T.mean(actor_loss)
+        actor_loss.backward()
         self.behavior_actor.optimizer.step()
 
         self.update_network_parameters()

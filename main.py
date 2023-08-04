@@ -5,7 +5,8 @@ from ddpg_torch import Agent
 from utils import plot_learning_curve
 
 if __name__ == '__main__':
-    env = gym.make('LunarLanderContinuous-v2')
+    enviroment_name = 'HalfCheetah-v2'
+    env = gym.make(enviroment_name)
     agent = Agent(alpha=0.0001, beta=0.001,
                   state_dims=env.observation_space.shape, tau=0.001,
                   batch_size=64, fc1_dims=400, fc2_dims=300,
@@ -13,8 +14,8 @@ if __name__ == '__main__':
     print('state_dims = ', env.observation_space.shape)
     print('action_dims = ', env.action_space.shape)
     n_games = 1000
-    filename = 'LunarLander_alpha_' + str(agent.alpha) + '_beta_' + \
-               str(agent.beta) + '_' + str(n_games) + '_games'
+    filename =  enviroment_name +'_alpha_' + str(agent.alpha) + '_beta_' \
+                + str(agent.beta) + '_' + str(n_games) + '_games'
     figure_file = os.path.join('plots', filename + '.png')
 
     best_score = env.reward_range[0]

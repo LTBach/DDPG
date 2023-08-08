@@ -7,7 +7,7 @@ import torch.optim as optim
 
 class CriticNetwork(nn.Module):
     def __init__(self, beta, state_dims, fc1_dims, fc2_dims, action_dims,
-                 name, chkpt_dir='tmp/ddpg'):
+                 name, chkpt_dir='checkpoint'):
         super(CriticNetwork, self).__init__()
         self.state_dims = state_dims
         self.fc1_dims = fc1_dims
@@ -18,7 +18,7 @@ class CriticNetwork(nn.Module):
         self.checkpoint_file = os.path.join(self.checkpoint_dir, 
                                             self.name+'_ddpg')
 
-        self.fc1 = nn.Linear(*self.state_dims, self.fc1_dims)
+        self.fc1 = nn.Linear(self.state_dims, self.fc1_dims)
         f1 = 1 / np.sqrt(self.fc1.weight.data.size()[0])
         self.fc1.weight.data.uniform_(-f1, f1)
         self.fc1.bias.data.uniform_(-f1, f1)
@@ -43,8 +43,8 @@ class CriticNetwork(nn.Module):
         self.optimizer = optim.Adam(self.parameters(), lr=beta,
                                     weight_decay=0.01)
         
-        self.device = T.device('cuda:0' if T.cuda.is_available() 
-                               else 'cuda:1')
+        self.device = T.device('cuda' if T.cuda.is_available() 
+                               else 'cpu')
         self.to(self.device)
 
     def forward(self, state, action):
@@ -63,21 +63,21 @@ class CriticNetwork(nn.Module):
 
 
     def save_checkpoint(self):
-        print('... saving checkpoint ...')
+        print('... saving checkpoint ...', self.checkpoint_file)
         T.save(self.state_dict(), self.checkpoint_file)
 
     def load_checkpoint(self):
-        print('... loading checkpoint ...')
+        print('... loading checkpoint ...', self.checkpoint_file)
         self.load_state_dict(T.load(self.checkpoint_file))
 
     def save_best(self):
-        print('... saving best checkpoint ...')
         checkpoint_file = os.path.join(self.checkpoint_dir, self.name+'_best')
+        print('... saving best checkpoint ...', checkpoint_file)
         T.save(self.state_dict(), checkpoint_file)
 
 class ActorNetwork(nn.Module):
     def __init__(self, alpha, state_dims, fc1_dims, fc2_dims, action_dims,
-                 name, chkpt_dir='tmp/ddpg'):
+                 name, chkpt_dir='checkpoint'):
         super(ActorNetwork, self).__init__()
         self.state_dims = state_dims
         self.fc1_dims = fc1_dims
@@ -88,7 +88,7 @@ class ActorNetwork(nn.Module):
         self.checkpoint_file = os.path.join(self.checkpoint_dir,
                                              name+'_ddpg')
         
-        self.fc1 = nn.Linear(*self.state_dims, self.fc1_dims)
+        self.fc1 = nn.Linear(self.state_dims, self.fc1_dims)
         f1 = 1 / np.sqrt(self.fc1.weight.data.size()[0])
         self.fc1.weight.data.uniform_(-f1, f1)
         self.fc1.bias.data.uniform_(-f1, f1)
@@ -107,8 +107,8 @@ class ActorNetwork(nn.Module):
 
         self.optimizer = optim.Adam(self.parameters(), lr=alpha)
         
-        self.device = T.device('cuda:0' if T.cuda.is_available() 
-                               else 'cuda:1')
+        self.device = T.device('cuda' if T.cuda.is_available() 
+                               else 'cpu')
         self.to(self.device)
 
     def forward(self, state):
@@ -123,15 +123,15 @@ class ActorNetwork(nn.Module):
         return x
 
     def save_checkpoint(self):
-        print('... saving checkpoint ...')
+        print('... saving checkpoint ...', self.checkpoint_file)
         T.save(self.state_dict(), self.checkpoint_file)
 
     def load_checkpoint(self):
-        print('... loading checkpoint ...')
+        print('... loading checkpoint ...', self.checkpoint_file)
         self.load_state_dict(T.load(self.checkpoint_file))
 
     def save_best(self):
-        print('... saving best checkpoint ...')
         checkpoint_file = os.path.join(self.checkpoint_dir, self.name+'_best')
+        print('... saving best checkpoint ...', checkpoint_file)
         T.save(self.state_dict(), checkpoint_file)
 
